@@ -14,7 +14,7 @@ from jose import JWTError, jwt
 import secrets
 import logging
 from fastapi.logger import logger as fastapi_logger
-from application.security_var import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, access_control_list
+from application.security_var import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, ac
 
 gunicorn_logger = logging.getLogger("gunicorn")
 
