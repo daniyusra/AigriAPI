@@ -5,8 +5,8 @@ from pyparsing import Optional
 import uvicorn
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
-from application.components import predict, read_imagefile
-from application.security import Oauth2ClientCredentials, OAuth2ClientCredentialsRequestForm 
+from .application.components import predict, read_imagefile
+from .application.security import Oauth2ClientCredentials, OAuth2ClientCredentialsRequestForm 
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBasic
 from starlette.status import HTTP_401_UNAUTHORIZED
 from passlib.context import CryptContext
@@ -14,16 +14,16 @@ from jose import JWTError, jwt
 import secrets
 import logging
 from fastapi.logger import logger as fastapi_logger
-from application.security_var import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, ac
-
-gunicorn_logger = logging.getLogger("gunicorn")
+from .application.security_var import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, access_control_list
 
 app = FastAPI()
 
 
 
-
-
+#healthcheck endpoint
+@app.get("/healthcheck")
+async def read_root():
+    return {"status": "ok"}
 
 #region security boiler plate
 
@@ -173,5 +173,4 @@ async def predict_api(file: UploadFile = File(...), current_user: User = Depends
 
 
 if __name__ == "__main__":
-    fastapi_logger.setLevel(gunicorn_logger.level)
-    uvicorn.run(app, debug =True)
+    uvicorn.run(app)

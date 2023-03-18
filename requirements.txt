@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+pyparsing
+starlette
+Pillow
+numpy
+python-jose
+passlib
+python-multipart
