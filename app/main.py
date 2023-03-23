@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from pyparsing import Optional
 import uvicorn
 
-from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi import Body, Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
 from .application.components import predict, read_imagefile
 from .application.security import Oauth2ClientCredentials, OAuth2ClientCredentialsRequestForm 
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBasic
@@ -15,6 +15,14 @@ import secrets
 import logging
 from fastapi.logger import logger as fastapi_logger
 from .application.security_var import ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM, SECRET_KEY, access_control_list
+
+
+from logging.config import dictConfig
+import logging
+from .application.config.log_conf import log_config
+
+dictConfig(log_config)
+
 
 app = FastAPI()
 
@@ -56,6 +64,7 @@ oauth2_scheme = Oauth2ClientCredentials(tokenUrl="token")
 async def login(request: Request,
                 form_data: OAuth2ClientCredentialsRequestForm = Depends()
 ):
+    
     failed_auth = HTTPException(
         status_code=400, detail="Incorrect username or password"
     )
@@ -71,7 +80,14 @@ async def login(request: Request,
         client_secret = basic_credentials.password
         username = "admin"
     else:
-        raise failed_auth
+        try:
+            logger = logging.getLogger("logger")
+            payload = await request.json()
+            client_id = payload["client_id"]
+            client_secret = payload["client_secret"]
+            username = payload["username"]
+        except Exception as e: 
+            raise failed_auth
 
     if username is None:
         username = "admin"
@@ -97,6 +113,7 @@ def create_access_token(data: dict, expires_delta: Union[datetime.timedelta, Non
     else:
         expire = datetime.datetime.utcnow() + datetime.timedelta(minutes=15)
     to_encode.update({"exp": expire})
+    
     encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
     return encoded_jwt
 
@@ -164,6 +181,8 @@ async def get_current_active_user(current_user: User = Depends(get_current_user)
 
 @app.post("/predict/image")
 async def predict_api(file: UploadFile = File(...), current_user: User = Depends(get_current_active_user)):
+    logger = logging.getLogger("logger")
+    logger.info("REQUEST FROM USER: " + current_user.username + " FROM CLIENT " + current_user.client_id)
     extension = file.filename.split(".")[-1] in ("jpg", "jpeg", "png")
     if not extension:
         return "Image must be jpg or png format!"
