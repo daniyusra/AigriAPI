@@ -7,3 +7,5 @@ numpy
 python-jose
 passlib
 python-multipart
+torch
+torchvision

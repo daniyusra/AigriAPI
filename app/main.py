@@ -5,7 +5,7 @@ from pyparsing import Optional
 import uvicorn
 
 from fastapi import Body, Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
-from .application.components import predict, read_imagefile
+from .application.components import get_prediction, read_imagefile
 from .application.security import Oauth2ClientCredentials, OAuth2ClientCredentialsRequestForm 
 from fastapi.security import OAuth2PasswordRequestForm, HTTPBasic
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -187,7 +187,7 @@ async def predict_api(file: UploadFile = File(...), current_user: User = Depends
     if not extension:
         return "Image must be jpg or png format!"
     image = read_imagefile(await file.read())
-    prediction = predict(image)    
+    prediction = get_prediction(image)    
     return prediction
 
 

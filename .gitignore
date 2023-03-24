@@ -3,3 +3,5 @@ app/application/__pycache__/components.cpython-38.pyc
 app/application/__pycache__/security_var.cpython-38.pyc
 app/application/__pycache__/security.cpython-38.pyc
 app/application/config/__pycache__/log_conf.cpython-38.pyc
+app/application/models/__pycache__/disease_tracker.cpython-38.pyc
+app/application/__pycache__/components.cpython-38.pyc
